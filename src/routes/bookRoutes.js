@@ -6,7 +6,7 @@ const bookRouter = express.Router();
 
 function router(nav) {
   bookRouter.route('/:id')
-    .get((req, res) => {
+    .all((req, res, n) => {
       (async function query() {
         const { id } = req.params;
         const request = new sql.Request();
@@ -15,14 +15,27 @@ function router(nav) {
           .input('id', sql.Int, id)
           .query('select * from clients where id=@id');
         // debug(recordset);
-        res.render('personView',
-          {
-            title: 'my lib domini',
-            nav,
-            person: recordset[0],
-          });
-      }()
-      );
+        [req.person] = recordset;
+        n();
+      }());
+    })
+    .get((req, res) => {
+      // (async function query() {
+      // const { id } = req.params;
+      // const request = new sql.Request();
+      // const { recordset } = await request
+      // // .query(`select * from clients where id=${id}`);
+      // .input('id', sql.Int, id)
+      // .query('select * from clients where id=@id');
+      // // debug(recordset);
+      res.render('personView',
+        {
+          title: 'my lib domini',
+          nav,
+          person: req.person,
+        });
+      // }()
+      // );
     });
 
   bookRouter.route('/')
